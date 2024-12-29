@@ -4,9 +4,15 @@ import apiClient from "../api/apiClient";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 
-const Modal = ({ isOpen, closeModal, title, content, blogId, setBlogs, blogs }) => {
+const Modal = ({ isOpen, closeModal, title, content, blogId, }) => {
     const navigate = useNavigate();
-    const {  role } = useSelector((state) => state.auth);
+    // const {  userType } = useSelector((state) => state.auth);
+    const userType = useSelector((state) => state.user?.isLoggedIn?.userType);
+
+    // const userType = 'admin'
+    // console.log("userType", userType)
+    // console.log("userType", userType)
+
 
     if (!isOpen) return null;
     const handleEdit = () => {
@@ -44,8 +50,8 @@ const Modal = ({ isOpen, closeModal, title, content, blogId, setBlogs, blogs }) 
                         </button>
                     </div>
                     <div>
-                        {role === 'admin' &&
-                            <div  className="space-x-3">
+                        {userType === 'admin' &&
+                            <div className="space-x-3">
 
                                 <button
                                     onClick={handleEdit}
@@ -68,7 +74,7 @@ const Modal = ({ isOpen, closeModal, title, content, blogId, setBlogs, blogs }) 
     );
 };
 
-const BlogCard = ({ blog, setBlogs, blogs }) => {
+const BlogCard = ({ blog, blogs }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalContent, setModalContent] = useState("");
     const [title, setTitle] = useState("")
@@ -85,6 +91,19 @@ const BlogCard = ({ blog, setBlogs, blogs }) => {
         setIsModalOpen(false);
         setModalContent("");
     };
+    const navigate = useNavigate();
+
+
+    const handleChat = (authorId, userId) => {
+        navigate('/chats', { state: { authorId, userId } });
+
+    }
+
+    const userId = useSelector((state) => state.user?.isLoggedIn.userId);
+
+
+    console.log("userId", userId);
+
 
     if (!blog || typeof blog !== "object") {
         return (
@@ -93,27 +112,38 @@ const BlogCard = ({ blog, setBlogs, blogs }) => {
             </div>
         );
     }
+    console.log("bloagcard auhre", blog.author);
+
 
     return (
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
             <div className="p-4">
                 <h3 className="text-xl font-semibold">{blog.title
-                    ? blog.title.length > 50
+                    ? blog?.title?.length > 50
                         ? `${blog.title.slice(0, 20)}...`
                         : blog.title
                     : "No description available"}</h3>
                 <p className="h-12 text-gray-600 mt-2">
                     {blog.content
-                        ? blog.content.length > 100
+                        ? blog?.content?.length > 100
                             ? `${blog.content.slice(0, 70)}...`
                             : blog.content
                         : "No description available"}
                 </p>
-                <button
-                    onClick={() => handleOpenModal(blog.content, blog.title, blog._id)}
-                    className="mt-4 py-2 px-4 bg-indigo-500 text-white rounded-lg hover:bg-indigo-700">
-                    Details
-                </button>
+                <div className="flex justify-between">
+                    <button
+                        onClick={() => handleOpenModal(blog.content, blog.title, blog._id)}
+                        className="mt-4 py-2 px-4 bg-indigo-500 text-white rounded-lg hover:bg-indigo-700">
+                        Details
+                    </button>
+                    {userId !== blog.author &&
+                        <button
+                            onClick={() => handleChat(blog.author, userId)}
+                            className="mt-4 py-2 px-4 bg-indigo-500 text-white rounded-lg hover:bg-indigo-700">
+                            Chat
+                        </button>
+                    }
+                </div>
             </div>
             <Modal
                 isOpen={isModalOpen}
@@ -121,7 +151,7 @@ const BlogCard = ({ blog, setBlogs, blogs }) => {
                 content={modalContent}
                 title={title}
                 blogId={blog._id}
-                setBlogs={setBlogs}
+                // setBlogs={setBlogs}
                 blogs={blogs}
             />
         </div>

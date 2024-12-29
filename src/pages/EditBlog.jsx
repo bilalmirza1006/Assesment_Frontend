@@ -4,20 +4,26 @@ import { useEffect, useState } from "react";
 import apiClient from "../api/apiClient";
 import toast from "react-hot-toast";
 import Logout from "../components/Logout";
+import { useGetPostByIdQuery, useUpdatePostMutation } from "../reduxQuery/slice/authApi";
 const EditBlog = () => {
   const [blogData, setBlogData] = useState(null);
   const { id } = useParams();
   const { register, handleSubmit, setValue } = useForm();
   const navigate = useNavigate()
+  const { data: post, error, isLoading } = useGetPostByIdQuery(id);
+  const [updatePost,] = useUpdatePostMutation();
+  console.log("post", "id", id, post);
+
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         if (id) {
-          const response = await apiClient.get(`/posts/${id}`);
-          console.log("Fetched Blog Data:", response.data);
-          setBlogData(response.data);
-          setValue("title", response.data.title);
-          setValue("content", response.data.content);
+          // const response = await apiClient.get(`/posts/${id}`);
+          // console.log("Fetched Blog Data:", response.data);
+          setBlogData(post);
+          setValue("title", post.title);
+          setValue("content", post.content);
         }
       } catch (error) {
         console.error("Error fetching blog:", error);
@@ -29,20 +35,28 @@ const EditBlog = () => {
 
   const onSubmit = async (data) => {
     try {
-      if (id) {
-        const response = await apiClient.put(`/posts/${id}`, {
-          title: data.title,
+      // Use the updatePost mutation
+      const response = await updatePost({
+        id: id, // Assuming post.id is passed as a prop or state
+        data: {
+          title: data.title, // Dynamically use data from the form
           content: data.content,
-        });
-        console.log("Updated Blog Response:", response.data.message);
-        toast.success(response.data.message)
-        navigate('/dashboard')
-      }
+        },
+      }).unwrap(); // Unwrap the resolved value for better error handling
+  
+      // Log and show a success message
+      console.log('Updated Blog Response:', response.message);
+      toast.success(response.message);
+  
+      // Optional: Navigate to another page after success
+      navigate('/dashboard');
     } catch (error) {
-      console.error("Error updating blog:", error);
-      alert("Failed to update blog.");
+      // Handle any errors
+      console.error('Error updating blog:', error);
+      toast.error('Failed to update blog.');
     }
   };
+  
 
   if (!blogData) return <div className=" w-full min-h-screen flex items-center justify-center">
     <p className="text-xl font-extrabold">Loading blog data...</p>;

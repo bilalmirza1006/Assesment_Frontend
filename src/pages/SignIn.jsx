@@ -1,28 +1,55 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { login } from "../redux/slice/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+// import { login } from "../redux/slice/authSlice";
 import { Controller, useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import CustomInput from "../components/CustomInput";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { connectSocket } from "../socket/socket";
+import { useLoginMutation } from "../reduxQuery/slice/authApi";
+// import queryStore from "../reduxQuery/queryStore";
+import { loggedIn } from "../reduxQuery/reducer/mainSlice";
 const SignIn = () => {
     const dispatch = useDispatch();
-    const {  handleSubmit, control, formState: { errors, isSubmitting } } = useForm();
+    const { handleSubmit, control, formState: { errors, isSubmitting } } = useForm();
     const [showPassword, setShowPassword] = useState(false);
 
     const navigate = useNavigate();
+    // const { token } = useSelector((state) => state.auth);
+    /// redux tooklit 
+    // const onSubmit = async (data) => {
+    //     try {
+    //         const result = await dispatch(login(data)).unwrap();
+    //         toast.success("Login successful!");
+    //         // log
+    //         connectSocket(token);
 
-    const onSubmit = async (data) => {
+    //         navigate('/dashboard');
+    //         console.log("Token received:", result);
+    //     } catch (err) {
+    //         toast.error(err || "Login failed!");
+    //         console.error("Error:", err);
+    //         console.error("Error during login:", err);
+    //     }
+    // }
+
+    /// redux toolkit query
+    const [login, { isLoading: isLoginLoading, error: loginError }] = useLoginMutation();
+    const token  = useSelector((state) => state.user?.isLoggedIn);
+    // console.log("token sigin prouyewgj", token);
+    const onSubmit = async (loginCredentials) => {
         try {
-            const result = await dispatch(login(data)).unwrap(); 
-            toast.success("Login successful!");
+            const result = await login(loginCredentials).unwrap();
+            dispatch(loggedIn(result));
+            connectSocket(token);
+            // localStorage.setItem("token", result.token);
+            // localStorage.setItem("role", result.role);
+            // console.log("Login Successful", result);
             navigate('/dashboard');
-            console.log("Token received:", result); 
-        } catch (err) {
-            toast.error(err || "Login failed!");
-            console.error("Error:", err);
-            console.error("Error during login:", err);
+
+        } catch (error) {
+            console.error("Login Failed", error);
         }
     }
 

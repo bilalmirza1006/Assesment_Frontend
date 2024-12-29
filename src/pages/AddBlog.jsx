@@ -3,23 +3,33 @@ import apiClient from "../api/apiClient";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import Logout from "../components/Logout";
+import { useAddBlogMutation, useGetUsersQuery } from "../reduxQuery/slice/authApi";
 
 const AddBlog = () => {
     const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm();
 
     const navigate = useNavigate();
+    const [addBlog, { isLoading: isLoginLoading, error: loginError }] = useAddBlogMutation();
+    const { data: users } = useGetUsersQuery()
+    const getAllUser = users ?? []
+    console.log("users", getAllUser);
 
     const onSubmit = async (data) => {
+        console.log("data", data);
+        
         try {
             console.log("Form data:", data);
-            const response = await apiClient.post(`/posts`, {
-                title: data.title,
-                content: data.content,
-                author: data.author,
-            });
-            toast.success(response.data.message);
+            const result = await addBlog(data).unwrap();
+            console.log("result:", result);
+
+            // const response = await apiClient.post(`/posts`, {
+            //     title: data.title,
+            //     content: data.content,
+            //     author: data.author,
+            // });
+            // toast.success(response.data.message);
             navigate('/dashboard');
-            reset();
+            // reset();
         } catch (error) {
             console.error('Error adding blog:', error);
             toast.error('Failed to add blog.');
@@ -41,12 +51,17 @@ const AddBlog = () => {
                             <div className="relative mb-5">
 
                                 <label className="block text-xl font-bold pb-2 text-gray-700">Author</label>
-                                <input
-                                    type="text"
-                                    placeholder="Author"
-                                    {...register("author", { required: "Author is required" })}
+                                <select
+                                    {...register("author", { required: "Author is required" })} // Bind to react-hook-form
                                     className="block w-full border p-2 rounded mb-2"
-                                />
+                                >
+                                    <option value="">Select an author</option> {/* Default option */}
+                                    {getAllUser.map((user) => (
+                                        <option key={user._id} value={user._id}>
+                                            {user.username} {/* Display user name */}
+                                        </option>
+                                    ))}
+                                </select>
 
                                 {errors.author && (
                                     <div className="absolute inset-x-0 bottom-[-25px] text-xs text-red-500 mb-2">{errors.author.message}</div>

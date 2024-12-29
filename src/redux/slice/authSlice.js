@@ -11,7 +11,10 @@ export const login = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await apiClient.post(`${ENDPOINTS.login}`, credentials);
+      console.log("responsesssss",response);
+      
       return {
+        response,
         token: response.data.token,
         role: response.data.role,
       };

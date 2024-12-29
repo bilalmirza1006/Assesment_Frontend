@@ -1,11 +1,14 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-import { logout } from "../redux/slice/authSlice";
+// import { logout } from "../redux/slice/authSlice";
+import { disconnectSocket } from "../socket/socket";
+import { logout } from "../reduxQuery/reducer/mainSlice";
 const Logout = () => {
   const dispatch = useDispatch();
 
   const handleLogout = () => {
     dispatch(logout());
+    disconnectSocket(); 
     window.location.href = "/";
   };
 
