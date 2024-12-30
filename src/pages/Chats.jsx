@@ -44,6 +44,10 @@ function Chat() {
     const location = useLocation();
     const { authorId, userId } = location.state || {};
     console.log("location", location.state, 'auther', authorId, 'user', userId);
+
+    const [inputId, setInputId] = useState({ userId, authorId });
+    // setInputId(userId, authorId)
+    console.log("setInputId", inputId);
     // const [messages, setMessages] = useState([
     //     { message: "Hello!", timestamp: "10:15 AM", isSender: false },
     //     { message: "Hi, how are you?", timestamp: "10:16 AM", isSender: true },
@@ -190,12 +194,12 @@ function Chat() {
                 roomId,
             };
             socket.emit("message", message);
-            setMessages((prev) => [...prev, { ...message,  }]);
+            setMessages((prev) => [...prev, { ...message, }]);
             setMessageInput("");
         }
     };
     const [isConnected, setIsConnected] = useState(false);
-    
+
     const { token, userType } = useSelector((state) => state.user?.isLoggedIn);
     useEffect(() => {
         // Reconnect socket on page load if token exists
@@ -255,7 +259,54 @@ function Chat() {
             socket.off("newMessage");
         };
     }, [userId, authorId]);
-    console.log("New message",messages);
+    console.log("New message", messages);
+
+
+    const [chatList, setChatList] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    console.log("chatList", chatList);
+    // Function to fetch chat list
+    const fetchChatList = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5000/api/getChatList?userId=${userId}`);
+            setChatList(response.data); // Store chat list in state
+            setLoading(false); // Set loading to false after data is fetched
+        } catch (err) {
+            setError('Failed to fetch chat list');
+            setLoading(false);
+        }
+    };
+
+
+    const messageHandle = (userId, authorId) => {
+        // Fetch chat history for the given user and author
+        axios
+            .get("http://localhost:5000/messages", {
+                params: { senderId: userId, receiverId: authorId },
+            })
+            .then((res) => {
+                console.log(" on click Chat history fetched:", res.data);
+                setMessages(res.data);  // Store the chat history in the state
+                setInputId({ userId, authorId }); // Update the inputId state
+            })
+            .catch((err) => console.error("Error fetching messages:", err));
+    };
+
+    // Use useEffect to fetch data when the component mounts
+    useEffect(() => {
+        if (userId) {
+            fetchChatList(); // Fetch chat list whenever userId changes
+        }
+    }, [userId]); // Dependency array ensures it runs when userId changes
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
+    if (error) {
+        return <div>{error}</div>;
+    }
 
     const handleUserAction = (actionType, data) => {
         if (actionType === 'emailClick') {
@@ -332,7 +383,7 @@ function Chat() {
                             icon={<IoIosSearch />}
                         />
                     </div>
-                    {users?.length === 0 ?
+                    {chatList?.length === 0 ?
                         (
                             <p className="text-xl text-center text-gray-600">No user Available</p>
 
@@ -340,12 +391,14 @@ function Chat() {
                         :
                         (
                             <div>
-                                {users?.map((item) => {
+                                {chatList?.map((item) => {
                                     console.log("map", item)
                                     return (
                                         <ChatList
                                             key={item.id}
                                             item={item}
+                                            messageHandle={() => messageHandle(item.participants[0], item.participants[1])} // Pass userId and authorId on click
+                                        // messageHandle={messageHandle}
                                         // src={dowloard}
                                         // userName={'Bilal'}
                                         // lastMessage={'Hello, how are you?'}

@@ -40,8 +40,10 @@ const Dashboard = () => {
     const addBlogHandle = () => {
         navigate('/add-blog')
     }
+        const userId = useSelector((state) => state.user?.isLoggedIn.userId);
+    
     const chatHandle = () => {
-        navigate('/chats')
+        navigate('/chats',{ state: { userId } })
     }
 
     return (

@@ -112,7 +112,8 @@ function ChatList({
     unreadMessage,
     onlineStatus,
     isTyping,
-    messageStatus  // New prop for message status
+    messageStatus , // New prop for message status
+    messageHandle
 }) {
     // Function to render message status icon
     const renderMessageStatus = () => {
@@ -143,7 +144,7 @@ function ChatList({
 
 
     return (
-        <div className='flex p-4 items-center w-full border-b-2 border-solid border-gray-300 hover:bg-gray-100 cursor-pointer'>
+        <div onClick={messageHandle} className='flex p-4 items-center w-full border-b-2 border-solid border-gray-300 hover:bg-gray-100 cursor-pointer'>
             {/* Profile Image */}
             <div className='relative'>
                 <div className='w-12 h-12'>

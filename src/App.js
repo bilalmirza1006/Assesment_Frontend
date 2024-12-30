@@ -12,14 +12,14 @@ import { connectSocket } from "./socket/socket";
 import { useSelector } from "react-redux";
 
 function App() {
-    const { token, userType } = useSelector((state) => state.user?.isLoggedIn);
+//     const { token, userType } = useSelector((state) => state.user?.isLoggedIn);
 
-  useEffect(() => {
-    // const token = localStorage.getItem("authToken");
-    if (token) {
-        connectSocket(token);
-    }
-}, []);
+//   useEffect(() => {
+//     // const token = localStorage.getItem("authToken");
+//     if (token) {
+//         connectSocket(token);
+//     }
+// }, []);
   return (
     <Router>
       <Routes>
