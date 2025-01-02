@@ -42,157 +42,50 @@ import { useSelector } from 'react-redux';
 function Chat() {
 
     const location = useLocation();
-    const { authorId, userId } = location.state || {};
-    console.log("location", location.state, 'auther', authorId, 'user', userId);
+    const { receiverId, userId } = location.state || {};
+    // console.log("location", location.state, 'auther', receiverId, 'user', userId);
 
-    const [inputId, setInputId] = useState({ userId, authorId });
-    // setInputId(userId, authorId)
+    const [inputId, setInputId] = useState({ userId, receiverId });
     console.log("setInputId", inputId);
-    // const [messages, setMessages] = useState([
-    //     { message: "Hello!", timestamp: "10:15 AM", isSender: false },
-    //     { message: "Hi, how are you?", timestamp: "10:16 AM", isSender: true },
-    //     { message: "I'm good! What about you?", timestamp: "10:17 AM", isSender: false },
-    //     { message: "I'm good! What about you?", timestamp: "10:17 AM", isSender: false },
-    //     { message: "I'm good! What about you?", timestamp: "10:17 AM", isSender: true },
-    //     { message: "I'm good! What about you?awretxf wehfouweof wefweoief oiwe foi wehhfoiweh oif wef woiefoiwehfouwehfoweh fowheofu hweoufh weouefh weouhcygvhbjnkm", timestamp: "10:17 AM", isSender: false },
-    // ]);
-    // const [messageInput, setMessageInput] = useState()
+
     const [messageInput, setMessageInput] = useState(""); // State to manage the input field
     const [messages, setMessages] = useState([]); // State to store sent messages   
-    // const sendHandler = () => {
-    //     // Log the input message for debugging
-    //     console.log('sendHandler called with:', messageInput);
 
-    //     // Check if `messageInput` is not empty
-    //     // if (messageInput.trim()) {
-    //         // Update the `messages` state with a new message
-    //         setMessages((prevMessages) => [
-    //             ...prevMessages,
-    //             {
-    //                 message: messageInput,
-    //                 timestamp: new Date().toLocaleTimeString(),
-    //                 isSender: true,
-    //             },
-    //         ]);
-
-    //         // Clear the input field
-    //         setMessageInput('');
-    //     // } else {
-    //     //     console.log('Message input is empty. No message sent.');
-    //     // }
-    // };
-
-    // const [users, setUsers] = useState([])
     const { data: users } = useGetUsersQuery()
-    console.log('user', users);
-
-    // useEffect(() => {
-    //     const fetchUsers = async () => {
-    //         try {
-    //             const response = await apiClient.get(`/users`);
-    //             console.log("alluser", response.data);
-    //             // setBlogs(response.data);
-    //             setUsers(response.data.users);
-    //         } catch (error) {
-    //             console.error("Error fetching alluser:", error);
-    //         }
-    //     };
-    //     fetchUsers();
-    // }, [])
-    // console.log("alluser", users);
-
-    // const location = useLocation();
-    // const { authorId, currentUserId } = location.state || {};
-
-    // const sendHandler = () => {
-    //     if (messageInput) {
-    //         const socket = getSocket();
-    //         socket.emit('message', messageInput ,authorId, userId );
-    //         setMessages([
-    //             ...messages,
-    //             { message: messageInput, timestamp: new Date().toLocaleTimeString(), isSender: true },
-    //         ]);
-    //         setMessageInput(""); // Clear the input field after sending
-    //     }
-    // };
-    // const sendHandler = () => {
-    //     if (messageInput) {
-    //         const socket = getSocket();
-    //         socket.emit('message', {
-    //             content: messageInput,
-    //             senderId: userId,      // Current user
-    //             receiverId: authorId, // Recipient
-    //         });
-
-    //         // Update local state for the sender
-    //         setMessages([
-    //             ...messages,
-    //             {
-    //                 message: messageInput,
-    //                 timestamp: new Date().toLocaleTimeString(),
-    //                 isSender: true
-    //             },
-    //         ]);
-    //         setMessageInput(""); // Clear the input field after sending
-    //     }
-    // };
-    // useEffect(() => {
-    //     const socket = getSocket();
-
-    //     // Join the chat room
-    //     socket.emit("joinRoom", { roomId: `${userId}-${authorId}`, userId });
-
-    //     // Listen for new messages
-    //     socket.on("newMessage", (message) => {
-    //         console.log("New message received:", message);
-    //         // Only add the message if it belongs to this chat
-    //         if (
-    //             (message.senderId === userId && message.receiverId === authorId) ||
-    //             (message.senderId === authorId && message.receiverId === userId)
-    //         ) {
-    //             setMessages((prevMessages) => [...prevMessages, message]);
-    //         }
-    //     });
-
-    //     // Cleanup on component unmount
-    //     return () => {
-    //         socket.off("newMessage");
-    //     };
-    // }, [userId, authorId]);
-
-    // const sendHandler = () => {
-    //     if (messageInput) {
-    //         const socket = getSocket();
-    //         socket.emit('message', {
-    //             content: messageInput,
-    //             senderId: userId,      // Current user
-    //             receiverId: authorId, // Recipient
-    //         });
-
-    //         // Update local state for the sender
-    //         setMessages([
-    //             ...messages,
-    //             {
-    //                 message: messageInput,
-    //                 timestamp: new Date().toLocaleTimeString(),
-    //                 isSender: true
-    //             },
-    //         ]);
-    //         setMessageInput(""); // Clear the input field after sending
-    //     }
-    // };
+    // console.log('user', users);
 
     const socket = getSocket();
 
+    const [user, setUser] = useState(null);
+    // useEffect(() => {
+    //     socket.on("session", ({ userId, sessionId }) = {
+    //         // setUser({ userId, sessionId});
+    //         // setUser({ userId, sessionId})
+    //     })
+    // })
+
+    // useEffect(() => {
+    // const socket = getSocket();
+
+    //     socket?.emit('adduser',userId)
+    //     socket?.on("getUsers", (users) => {
+    //         console.log('active users', users)
+    //         // setUsers(users)
+    //     })
+    // }, [])
+
+
     const sendHandler = () => {
         if (messageInput.trim()) {
-            const roomId = `${userId}-${authorId}`;
+            // const roomId = `${userId}-${receiverId}`;
+            const roomId = [userId, receiverId].sort().join('-');
             const message = {
                 content: messageInput,
-                senderId: userId,
-                receiverId: authorId,
+                senderId:inputId.userId,
+                receiverId:inputId.receiverId,
                 roomId,
             };
+            console.log('messagehandle', message)
             socket.emit("message", message);
             setMessages((prev) => [...prev, { ...message, }]);
             setMessageInput("");
@@ -202,20 +95,22 @@ function Chat() {
 
     const { token, userType } = useSelector((state) => state.user?.isLoggedIn);
     useEffect(() => {
-        // Reconnect socket on page load if token exists
-        // const token = localStorage.getItem("authToken");
         if (token) {
             const socket = connectSocket(token);
             setIsConnected(true);
-
-            // Optionally listen to connection events
             socket.on("connect", () => {
-                console.log("Reconnected after refresh");
+                // console.log("Reconnected after refresh");
                 setIsConnected(true);
             });
+            // const sockett = getSocket();
+            // sockett?.emit('adduser', userId)
+            // sockett?.on("getUsers", (users) => {
+            //     console.log('active users', users)
+            //     // setUsers(users)
+            // })
 
             socket.on("disconnect", () => {
-                console.log("Disconnected");
+                // console.log("Disconnected");
                 setIsConnected(false);
             });
         }
@@ -224,48 +119,72 @@ function Chat() {
             disconnectSocket(); // Cleanup on component unmount
         };
     }, []);
+    useEffect(() => {
+        const socket = getSocket();
 
-    const joinRoom = (userId, authorId) => {
+        socket?.emit('adduser', userId)
+        socket?.on("getUsers", (users) => {
+            console.log('active users', users)
+            // setUsers(users)
+        })
+        socket?.on("reciveMessage", (message) => {
+            console.log('recive message', message)
+             setMessages((prev) => [...prev, message]);
+             console.log('messages', messages)
+        })
+    }, [])
+    console.log('messages', messages)
+
+    const joinRoom = (userId, receiverId) => {
         const socket = getSocket();
         if (socket) {
-            socket.emit("joinRoom", { userId, authorId });
+            socket.emit("joinRoom", { userId, receiverId });
         } else {
-            console.error("Socket is not connected!");
+            // console.error("Socket is not connected!");
         }
     };
     useEffect(() => {
         const socket = getSocket();
-        // const roomId = `${userId}-${authorId}`;
-        // socket.emit("joinRoom", { roomId });
-        joinRoom(userId, authorId);
+        joinRoom(userId, receiverId);
 
-        // Fetch chat history
         axios
             .get("http://localhost:5000/messages", {
-                params: { senderId: userId, receiverId: authorId },
+                params: { senderId: userId, receiverId: receiverId },
             })
             .then((res) => {
-                console.log("Chat history fetched:", res.data);
+                // console.log("Chat history fetched:", res.data);
                 setMessages(res.data)
             })
             .catch((err) => console.error("Error fetching messages:", err));
 
-        // Listen for new messages
         socket.on("newMessage", (message) => {
+            // console.log("New message:", message);
             setMessages((prev) => [...prev, message]);
         });
 
         return () => {
             socket.off("newMessage");
         };
-    }, [userId, authorId]);
-    console.log("New message", messages);
+    }, [userId, receiverId]);
+    // console.log("New message", messages);
 
 
     const [chatList, setChatList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     console.log("chatList", chatList);
+    useEffect(() => {
+        if (chatList && chatList.length > 0) {
+            chatList.forEach((chat) => {
+                if (chat.participants && Array.isArray(chat.participants) && chat.participants.length > 1) {
+                    const firstParticipantId = chat.participants[0]._id;
+                    const secondParticipantId = chat.participants[1]._id;
+                    setInputId({ userId: firstParticipantId, receiverId: secondParticipantId });
+                }
+            });
+        }
+    }, [chatList]);
+    // console.log("logReceiverIds", getFirstParticipantIds(chatList));
     // Function to fetch chat list
     const fetchChatList = async () => {
         try {
@@ -279,16 +198,17 @@ function Chat() {
     };
 
 
-    const messageHandle = (userId, authorId) => {
+    const messageHandle = (userId, receiverId) => {
         // Fetch chat history for the given user and author
         axios
             .get("http://localhost:5000/messages", {
-                params: { senderId: userId, receiverId: authorId },
+                params: { senderId: userId, receiverId: receiverId },
             })
             .then((res) => {
-                console.log(" on click Chat history fetched:", res.data);
+                // console.log(" on click Chat history fetched:", res.data);
                 setMessages(res.data);  // Store the chat history in the state
-                setInputId({ userId, authorId }); // Update the inputId state
+                console.log("Chat history fetched:", res.data);
+                setInputId({ userId, receiverId }); // Update the inputId state
             })
             .catch((err) => console.error("Error fetching messages:", err));
     };
@@ -304,9 +224,9 @@ function Chat() {
         return <div>Loading...</div>;
     }
 
-    if (error) {
-        return <div>{error}</div>;
-    }
+    // if (error) {
+    //     return <div>{error}</div>;
+    // }
 
     const handleUserAction = (actionType, data) => {
         if (actionType === 'emailClick') {
@@ -392,12 +312,12 @@ function Chat() {
                         (
                             <div>
                                 {chatList?.map((item) => {
-                                    console.log("map", item)
+                                    // console.log("map", item)
                                     return (
                                         <ChatList
                                             key={item.id}
                                             item={item}
-                                            messageHandle={() => messageHandle(item.participants[0], item.participants[1])} // Pass userId and authorId on click
+                                            messageHandle={() => messageHandle(item.participants[0], item.participants[1])} // Pass userId and receiverId on click
                                         // messageHandle={messageHandle}
                                         // src={dowloard}
                                         // userName={'Bilal'}
@@ -414,102 +334,6 @@ function Chat() {
                             </div>
                         )}
 
-                    {/* <div>
-                        {users && users.length > 0 ? (
-                            users?.map((item) => {
-                                if (!item) return null; // Skip undefined items
-                                console.log("map", item);
-                                return (
-                                    <ChatList
-                                        key={item.id}
-                                        item={item}
-                                        // src={item.image}
-                                    // Add props here as needed
-                                    />
-                                );
-                            })
-                        ) : (
-                            <p>No users available</p> // Fallback UI
-                        )}
-                    </div> */}
-                    {/* <ChatList
-                        src={dowloard}
-                        userName={'Bilal'}
-                        lastMessage={'Hello, how are you?'}
-                        messageTime={'11:30 AM'}
-                        icon={<GoFileDirectoryFill />}
-                        unreadMessage={0}
-                        onlineStatus={false}
-                        isTyping={false}
-                        messageStatus={'delivered'}
-                    />
-                    <ChatList
-                        src={dowloard}
-                        userName={'Bilal'}
-                        lastMessage={'Hello, how are you?'}
-                        messageTime={'11:30 AM'}
-                        icon={<GoFileDirectoryFill />}
-                        unreadMessage={0}
-                        onlineStatus={true}
-                        isTyping={true}
-                        messageStatus={'delivered'}
-                    />
-                    <ChatList
-                        src={dowloard}
-                        userName={'Bilal'}
-                        lastMessage={'Hello, how are you?'}
-                        messageTime={'11:30 AM'}
-                        icon={<GoFileDirectoryFill />}
-                        unreadMessage={4}
-                        onlineStatus={true}
-                        isTyping={false}
-                        messageStatus={'delivered'}
-                    />
-                    <ChatList
-                        src={dowloard}
-                        userName={'Bilal'}
-                        lastMessage={'Hello, how are you?'}
-                        messageTime={'11:30 AM'}
-                        icon={<GoFileDirectoryFill />}
-                        unreadMessage={0}
-                        onlineStatus={true}
-                        isTyping={false}
-                        messageStatus={'pending'}
-                    />
-                    <ChatList
-                        src={dowloard}
-                        userName={'Bilal'}
-                        lastMessage={'Hello, how are you?'}
-                        messageTime={'11:30 AM'}
-                        icon={<GoFileDirectoryFill />}
-                        unreadMessage={0}
-                        onlineStatus={true}
-                        isTyping={false}
-                        messageStatus={'delivered'}
-                    />
-                    <ChatList
-                        src={dowloard}
-                        userName={'Bilal'}
-                        lastMessage={'Hello, how are you?'}
-                        messageTime={'11:30 AM'}
-                        icon={<GoFileDirectoryFill />}
-                        unreadMessage={0}
-                        onlineStatus={true}
-                        isTyping={false}
-                        messageStatus={'received'}
-                    />
-
-                    <ChatList
-                        src={dowloard}
-                        userName={'Bilal'}
-                        lastMessage={'Hello, how are you?'}
-                        messageTime={'11:30 AM'}
-                        icon={<GoFileDirectoryFill />}
-                        unreadMessage={0}
-                        onlineStatus={true}
-                        isTyping={false}
-                        messageStatus={'read'}
-                    /> */}
                 </div>
                 <div className='border-l-2 border-solid  border-gray-300'>
                     <div className='h-20 flex items-center w-full p-2 border-b-2 border-solid border-gray-300'>
@@ -535,19 +359,6 @@ function Chat() {
                             ))}
                         </div>
                         <div className="mt-4 flex items-center">
-                            {/* <input
-                                type="text"
-                                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
-                                placeholder="Type a message..."
-                            />
-                            <button className="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg">
-                                Send
-                            </button> */}
-                            {/* <MessageInput
-                                sendHandler={sendHandler}
-                                setMessageInput={setMessageInput}
-                                messageInput={messageInput}
-                            /> */}
                             <MessageInput
                                 sendHandler={sendHandler}
                                 setMessageInput={setMessageInput}

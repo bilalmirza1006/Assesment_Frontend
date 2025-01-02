@@ -95,7 +95,7 @@ const BlogCard = ({ blog, blogs }) => {
 
 
     const handleChat = (authorId, userId) => {
-        navigate('/chats', { state: { authorId, userId } });
+        navigate('/chats', { state: {receiverId: authorId, userId } });
 
     }
 
