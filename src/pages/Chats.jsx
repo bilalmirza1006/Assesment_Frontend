@@ -47,6 +47,7 @@ function Chat() {
 
     const [inputId, setInputId] = useState({ userId, receiverId });
     console.log("setInputId", inputId);
+    console.log("userId", userId);
 
     const [messageInput, setMessageInput] = useState(""); // State to manage the input field
     const [messages, setMessages] = useState([]); // State to store sent messages   
@@ -81,10 +82,11 @@ function Chat() {
             const roomId = [userId, receiverId].sort().join('-');
             const message = {
                 content: messageInput,
-                senderId:inputId.userId,
-                receiverId:inputId.receiverId,
+                senderId: inputId.userId,
+                receiverId: inputId.receiverId,
                 roomId,
             };
+            console.log('message yuytrsdtyuytdtyguyhuydtr', message);
             console.log('messagehandle', message)
             socket.emit("message", message);
             setMessages((prev) => [...prev, { ...message, }]);
@@ -129,11 +131,11 @@ function Chat() {
         })
         socket?.on("reciveMessage", (message) => {
             console.log('recive message', message)
-             setMessages((prev) => [...prev, message]);
-             console.log('messages', messages)
+            setMessages((prev) => [...prev, message]);
+            console.log('messages', messages)
         })
     }, [])
-    console.log('messages', messages)
+    // console.log('messages', messages)
 
     const joinRoom = (userId, receiverId) => {
         const socket = getSocket();
@@ -173,33 +175,29 @@ function Chat() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     console.log("chatList", chatList);
-    useEffect(() => {
-        if (chatList && chatList.length > 0) {
-            chatList.forEach((chat) => {
-                if (chat.participants && Array.isArray(chat.participants) && chat.participants.length > 1) {
-                    const firstParticipantId = chat.participants[0]._id;
-                    const secondParticipantId = chat.participants[1]._id;
-                    setInputId({ userId: firstParticipantId, receiverId: secondParticipantId });
-                }
-            });
-        }
-    }, [chatList]);
-    // console.log("logReceiverIds", getFirstParticipantIds(chatList));
-    // Function to fetch chat list
-    const fetchChatList = async () => {
-        try {
-            const response = await axios.get(`http://localhost:5000/api/getChatList?userId=${userId}`);
-            setChatList(response.data); // Store chat list in state
-            setLoading(false); // Set loading to false after data is fetched
-        } catch (err) {
-            setError('Failed to fetch chat list');
-            setLoading(false);
-        }
-    };
+    // useEffect(() => {
+    //     if (chatList && chatList.length > 0) {
+    //         chatList.forEach((chat) => {
+    //             if (chat.participants && Array.isArray(chat.participants) && chat.participants.length > 1) {
+    //                 const firstParticipantId = chat.participants[0]?._id;
+    //                 const secondParticipantId = chat.participants[1]?._id;
+    //                 setInputId({ userId: firstParticipantId || null , receiverId: secondParticipantId || null});
+    //             }
+    //         });i
+    //     }
+    // }, [chatList]);
 
-
+    const loggedInUserId = userId; // Get the logged-in user ID
     const messageHandle = (userId, receiverId) => {
         // Fetch chat history for the given user and author
+        console.log("loggedInUserId", loggedInUserId);
+        console.log("userId, receiverId", userId, receiverId)
+        // Determine sender (userId) and receiverId dynamically
+        // if(loggedInUserId==loggedInUserId)
+        const sender = loggedInUserId === userId ? userId : receiverId;
+        const receiver = loggedInUserId === userId ? receiverId : userId;
+        console.log("sender", sender, "receiver", receiver);
+        setInputId({ userId: sender, receiverId: receiver });
         axios
             .get("http://localhost:5000/messages", {
                 params: { senderId: userId, receiverId: receiverId },
@@ -208,14 +206,56 @@ function Chat() {
                 // console.log(" on click Chat history fetched:", res.data);
                 setMessages(res.data);  // Store the chat history in the state
                 console.log("Chat history fetched:", res.data);
-                setInputId({ userId, receiverId }); // Update the inputId state
+                // setInputId({ userId, receiverId }); // Update the inputId state
             })
             .catch((err) => console.error("Error fetching messages:", err));
     };
 
+    // useEffect(() => {
+    //     if (chatList && chatList.length > 0) {
+    //         chatList.forEach((chat) => {
+    //             if (chat.participants && Array.isArray(chat.participants) && chat.participants.length > 1) {
+    //                 const firstParticipantId = chat.participants[0]?._id;
+    //                 const secondParticipantId = chat.participants[1]?._id;
+
+    //                 // Get the logged-in user's ID (replace with your actual user ID source)
+    //                 const loggedInUserId = userId; // Replace with actual user ID
+    //                 console.log("loggedInUserId", loggedInUserId);
+    //                 if (loggedInUserId === firstParticipantId) {
+    //                     console.log("firstParticipantId ", firstParticipantId);
+    //                     setInputId({ userId: firstParticipantId, receiverId: secondParticipantId });
+    //                 } else if (loggedInUserId === secondParticipantId) {
+    //                     setInputId({ userId: secondParticipantId, receiverId: firstParticipantId });
+    //                     console.log("secondParticipantId", secondParticipantId);
+    //                 }
+    //             }
+    //         });
+    //     }
+    // }, [chatList,messageHandle]);
+
+    // console.log("logReceiverIds", getFirstParticipantIds(chatList));
+    // Function to fetch chat list
+    const fetchChatList = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5000/api/getChatList?userId=${userId}`);
+            setChatList(response.data); // Store chat list in state
+            console.log("Chat list fetched:", response.data);
+            setLoading(false); // Set loading to false after data is fetched
+        } catch (err) {
+            setError('Failed to fetch chat list');
+            console.log("Error fetching chat list:", err);
+            setLoading(false);
+        }
+    };
+
+
+
+
     // Use useEffect to fetch data when the component mounts
+    console.log("userId", userId);
     useEffect(() => {
         if (userId) {
+            console.log("userId", userId);
             fetchChatList(); // Fetch chat list whenever userId changes
         }
     }, [userId]); // Dependency array ensures it runs when userId changes
