@@ -1,13 +1,3 @@
-// import React from 'react'
-
-// function Chats() {
-//   return (
-//     <div>Chats</div>
-//   )
-// }
-
-// export default Chats
-
 import React, { useEffect, useState } from 'react'
 import SideBarSubMenu from '../components/SideBarSubMenu'
 import { LuMessagesSquare } from "react-icons/lu";
@@ -58,22 +48,7 @@ function Chat() {
     const socket = getSocket();
 
     const [user, setUser] = useState(null);
-    // useEffect(() => {
-    //     socket.on("session", ({ userId, sessionId }) = {
-    //         // setUser({ userId, sessionId});
-    //         // setUser({ userId, sessionId})
-    //     })
-    // })
 
-    // useEffect(() => {
-    // const socket = getSocket();
-
-    //     socket?.emit('adduser',userId)
-    //     socket?.on("getUsers", (users) => {
-    //         console.log('active users', users)
-    //         // setUsers(users)
-    //     })
-    // }, [])
 
 
     const sendHandler = () => {
@@ -81,15 +56,23 @@ function Chat() {
             // const roomId = `${userId}-${receiverId}`;
             const roomId = [userId, receiverId].sort().join('-');
             const message = {
-                content: messageInput,
-                senderId: inputId.userId,
+                msg: messageInput,
+                sender: inputId.userId,
                 receiverId: inputId.receiverId,
                 roomId,
             };
             console.log('message yuytrsdtyuytdtyguyhuydtr', message);
             console.log('messagehandle', message)
             socket.emit("message", message);
-            setMessages((prev) => [...prev, { ...message, }]);
+            const updatedMessage = {
+                ...message,
+                message: message.msg,  // Assign `msg` to `message`
+            };
+            delete updatedMessage.msg;  // Remove `msg` property
+
+            // Update state with the modified message
+            setMessages((prev) => [...prev, updatedMessage]);
+            // setMessages((prev) => [...prev, { ...message, }]);
             setMessageInput("");
         }
     };
@@ -130,8 +113,16 @@ function Chat() {
             // setUsers(users)
         })
         socket?.on("reciveMessage", (message) => {
-            console.log('recive message', message)
-            setMessages((prev) => [...prev, message]);
+            // console.log('recive message', message.msg)
+            // setMessages((prev) => [...prev, message]);
+            const updatedMessage = {
+                ...message,
+                message: message.msg,  // Assign `msg` to `message`
+            };
+            delete updatedMessage.msg;  // Remove `msg` property
+
+            // Update state with the modified message
+            setMessages((prev) => [...prev, updatedMessage]);
             console.log('messages', messages)
         })
     }, [])
@@ -175,17 +166,6 @@ function Chat() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     console.log("chatList", chatList);
-    // useEffect(() => {
-    //     if (chatList && chatList.length > 0) {
-    //         chatList.forEach((chat) => {
-    //             if (chat.participants && Array.isArray(chat.participants) && chat.participants.length > 1) {
-    //                 const firstParticipantId = chat.participants[0]?._id;
-    //                 const secondParticipantId = chat.participants[1]?._id;
-    //                 setInputId({ userId: firstParticipantId || null , receiverId: secondParticipantId || null});
-    //             }
-    //         });i
-    //     }
-    // }, [chatList]);
 
     const loggedInUserId = userId; // Get the logged-in user ID
     const messageHandle = (userId, receiverId) => {
@@ -211,30 +191,7 @@ function Chat() {
             .catch((err) => console.error("Error fetching messages:", err));
     };
 
-    // useEffect(() => {
-    //     if (chatList && chatList.length > 0) {
-    //         chatList.forEach((chat) => {
-    //             if (chat.participants && Array.isArray(chat.participants) && chat.participants.length > 1) {
-    //                 const firstParticipantId = chat.participants[0]?._id;
-    //                 const secondParticipantId = chat.participants[1]?._id;
 
-    //                 // Get the logged-in user's ID (replace with your actual user ID source)
-    //                 const loggedInUserId = userId; // Replace with actual user ID
-    //                 console.log("loggedInUserId", loggedInUserId);
-    //                 if (loggedInUserId === firstParticipantId) {
-    //                     console.log("firstParticipantId ", firstParticipantId);
-    //                     setInputId({ userId: firstParticipantId, receiverId: secondParticipantId });
-    //                 } else if (loggedInUserId === secondParticipantId) {
-    //                     setInputId({ userId: secondParticipantId, receiverId: firstParticipantId });
-    //                     console.log("secondParticipantId", secondParticipantId);
-    //                 }
-    //             }
-    //         });
-    //     }
-    // }, [chatList,messageHandle]);
-
-    // console.log("logReceiverIds", getFirstParticipantIds(chatList));
-    // Function to fetch chat list
     const fetchChatList = async () => {
         try {
             const response = await axios.get(`http://localhost:5000/api/getChatList?userId=${userId}`);
@@ -384,19 +341,23 @@ function Chat() {
                     </div>
                     <div className="flex flex-col h-screen p-4 bg-white">
                         <div className="flex-1 overflow-y-auto space-y-4">
-                            {messages.map((msg, index) => (
-                                <Message
-                                    key={index}
-                                    message={msg}
-                                    // message={msg.content}
-                                    // timestamp={msg.timestamp}
-                                    // isSender={msg.isSender}
-                                    src={dowloard}
-                                    icon={<GoFileDirectoryFill />}
-                                    messageStatus={'read'}
+                            {messages.map((msg, index) => {
+                                console.log("dfghgf", msg)
+                                return (
+                                    < Message
+                                        key={index}
+                                        message={msg}
+                                        // message={msg.content}
+                                        // timestamp={msg.timestamp}
+                                        isSender={msg.sender === userId}
+                                        src={dowloard}
+                                        icon={< GoFileDirectoryFill />}
+                                        messageStatus={'read'}
 
-                                />
-                            ))}
+                                    />
+                                )
+                            }
+                            )}
                         </div>
                         <div className="mt-4 flex items-center">
                             <MessageInput

@@ -1,49 +1,3 @@
-// import React from "react";
-
-// const Message = ({ message, timestamp, isSender, src }) => {
-//     return (
-//         <div className={`flex ${isSender ? "justify-end" : "justify-start"} mb-4`}>
-//             <div className="flex items-end">
-
-//                 {!isSender &&
-//                     <div>
-//                         <img
-//                             src={src}
-//                             alt="Avatar"
-//                             className={`w-10 h-10 rounded-full ${isSender ? "ml-4" : "mr-2"
-//                                 }`}
-//                         />
-//                     </div>}
-//             </div>
-//             <div
-//                 className={`max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 rounded-lg shadow-lg ${isSender
-//                     ? "bg-blue-500 text-white rounded-br-none"
-//                     : "bg-gray-200 text-black rounded-bl-none"
-//                     }`}
-//             >
-//                 <p className="text-sm">{message}</p>
-//                 <span className="text-xs text-gray-400 mt-2 block text-right">
-//                     {timestamp}
-//                 </span>
-//             </div>
-//             <div className="flex items-end">
-
-//                 {isSender && <div>
-//                     <img
-//                         src={src}
-//                         alt="Avatar"
-//                         className={`w-10 h-10 rounded-full ${isSender ? "ml-2" : "mr-4"
-//                             }`}
-//                     />
-//                 </div>}
-//             </div>
-//         </div>
-//     );
-// };
-
-// export default Message;
-
-
 import React from "react";
 import { BsCheck, BsCheckAll } from 'react-icons/bs';  // Icons for message status
 import { FaClock } from 'react-icons/fa';
@@ -52,11 +6,12 @@ import { useLocation } from "react-router-dom";
 
 const Message = ({ message, timestamp, isSender, icon, src, messageStatus }) => {
 
-        const location = useLocation();
-    
+    const location = useLocation();
+
     const { token, userType } = useSelector((state) => state.user?.isLoggedIn);
     const { authorId, userId } = location.state || {};
-
+    console.log("authorId", isSender, authorId, userId);
+    console.log("message", isSender);
 
     const renderMessageStatus = () => {
         switch (messageStatus) {
@@ -93,7 +48,7 @@ const Message = ({ message, timestamp, isSender, icon, src, messageStatus }) => 
                         : "bg-red-200 text-black"
                     }`}
             >
-                <p className="text-sm">{message.content}</p>
+                <p className="text-sm">{message.message}</p>
                 <div className="flex justify-end">
 
                     <span className="text-xs text-gray-400 mt-2 block text-right">
